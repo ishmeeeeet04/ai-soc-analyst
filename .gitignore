@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Data (raw data can be large/sensitive — we don't commit it by default)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Models (can be large binary files)
+models/*
+!models/.gitkeep
+
+# VS Code
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
