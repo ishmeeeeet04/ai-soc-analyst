@@ -18,7 +18,7 @@ def run_pipeline(filepath):
     print("\n=== 🚨 SUSPICIOUS USERS (Brute Force - 3+ failed logins) ===")
     print(brute_force_results)
 
-    travel_results = detect_impossible_travel(logs, time_window_minutes=10)
+    travel_results = detect_impossible_travel(logs, max_speed_kmh=900)
     print("\n=== 🚨 SUSPICIOUS LOGINS (Impossible Travel) ===")
     print(travel_results)
 
