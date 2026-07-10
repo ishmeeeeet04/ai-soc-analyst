@@ -47,7 +47,8 @@ def generate_normal_logs(num_rows, base_date):
             "destination_ip": "10.0.0.5",
             "user": user,
             "action": "login",
-            "status": status
+            "status": status,
+            "is_attack": 0
         })
     return rows
 
@@ -70,7 +71,8 @@ def inject_brute_force_attack(base_date, target_user=None):
             "destination_ip": "10.0.0.5",
             "user": user,
             "action": "login",
-            "status": "failed"
+            "status": "failed",
+            "is_attack": 1
         })
     # Final successful login - the attacker eventually guesses correctly
     rows.append({
@@ -79,7 +81,8 @@ def inject_brute_force_attack(base_date, target_user=None):
         "destination_ip": "10.0.0.5",
         "user": user,
         "action": "login",
-        "status": "success"
+        "status": "success",
+        "is_attack": 1
     })
     return rows
 
@@ -100,7 +103,8 @@ def inject_impossible_travel_attack(base_date, target_user=None):
             "destination_ip": "10.0.0.5",
             "user": user,
             "action": "login",
-            "status": "success"
+            "status": "success",
+            "is_attack": 1
         },
         {
             "timestamp": start_time + timedelta(minutes=random.randint(2, 8)),
@@ -108,7 +112,8 @@ def inject_impossible_travel_attack(base_date, target_user=None):
             "destination_ip": "10.0.0.5",
             "user": user,
             "action": "login",
-            "status": "success"
+            "status": "success",
+            "is_attack": 1
         }
     ]
     return rows
