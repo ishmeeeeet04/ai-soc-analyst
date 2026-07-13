@@ -9,6 +9,7 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+data/vector_db/*
 
 # Models (can be large binary files)
 models/*
