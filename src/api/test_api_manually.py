@@ -1,18 +1,20 @@
 import requests
 import pandas as pd
 
-# Load our existing sample data and convert it to the JSON format our API expects
-logs = pd.read_csv("data/raw/sample_logs.csv")
-
-# Convert timestamp to string format for JSON (JSON doesn't have a native datetime type)
+logs = pd.read_csv("data/raw/synthetic_logs.csv")
 logs["timestamp"] = logs["timestamp"].astype(str)
 
-# Convert the DataFrame into a list of dictionaries - exactly what our API expects
 payload = logs.to_dict(orient="records")
 
-# Send it to our running API
 response = requests.post("http://127.0.0.1:5000/analyze", json=payload)
 
 print("Status Code:", response.status_code)
-print("Response:")
-print(response.json())
+
+result = response.json()
+print(f"\nRule-based brute force alerts: {len(result['rule_based']['brute_force_alerts'])}")
+print(f"Rule-based impossible travel alerts: {len(result['rule_based']['impossible_travel_alerts'])}")
+print(f"ML-flagged events: {result['summary']['total_ml_flagged_events']}")
+
+print("\nFirst ML prediction example:")
+if result['ml_based']['attack_predictions']:
+    print(result['ml_based']['attack_predictions'][0])
