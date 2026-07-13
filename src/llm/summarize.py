@@ -57,7 +57,7 @@ def generate_incident_summary(brute_force_alerts, travel_alerts, ml_predictions)
     prompt = build_prompt(brute_force_alerts, travel_alerts, ml_predictions)
 
     response = _client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-flash-latest",
         contents=prompt
     )
 
