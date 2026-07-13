@@ -1,21 +1,16 @@
 import os
 from dotenv import load_dotenv
-import anthropic
+from google import genai
 
-# Load variables from .env into the environment
 load_dotenv()
 
-# Create the Anthropic client once, reusing it across calls (same pattern as our ML model loading)
-_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def build_prompt(brute_force_alerts, travel_alerts, ml_predictions):
     """
     Constructs a clear, structured prompt describing our detection results,
     for the LLM to summarize into a human-readable incident report.
-
-    Input: the three result lists from our /analyze endpoint
-    Output: a single prompt string
     """
     prompt = "You are a Security Operations Center (SOC) assistant. "
     prompt += "Summarize the following detected security events into a clear, concise incident report "
@@ -53,23 +48,17 @@ def build_prompt(brute_force_alerts, travel_alerts, ml_predictions):
 
 def generate_incident_summary(brute_force_alerts, travel_alerts, ml_predictions):
     """
-    Calls the Anthropic API to generate a human-readable incident summary
+    Calls the Gemini API to generate a human-readable incident summary
     from our structured detection results.
-
-    Input: the three result lists from our detection engine
-    Output: a string containing the LLM-generated incident report
     """
     if not brute_force_alerts and not travel_alerts and not ml_predictions:
         return "No security incidents detected. All monitored activity appears normal."
 
     prompt = build_prompt(brute_force_alerts, travel_alerts, ml_predictions)
 
-    message = _client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=500,
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
+    response = _client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
     )
 
-    return message.content[0].text
+    return response.text
