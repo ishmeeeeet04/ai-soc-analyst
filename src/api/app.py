@@ -5,6 +5,7 @@ from src.ingestion.read_logs import load_logs
 from src.detections.brute_force import detect_brute_force
 from src.detections.impossible_travel import detect_impossible_travel
 from src.ml.predict import predict_with_explanation
+from src.llm.summarize import generate_incident_summary
 
 app = Flask(__name__)
 
@@ -16,10 +17,6 @@ def health_check():
 
 @app.route("/analyze", methods=["POST"])
 def analyze_logs():
-    """
-    Accepts log data as JSON, runs it through BOTH our rule-based detection engine
-    AND our ML model, returning combined results with MITRE context and SHAP explanations.
-    """
     input_data = request.get_json()
 
     if not input_data:
@@ -28,12 +25,12 @@ def analyze_logs():
     logs = pd.DataFrame(input_data)
     logs["timestamp"] = pd.to_datetime(logs["timestamp"])
 
-    # Rule-based detections (fast, deterministic, explainable by design)
     brute_force_results = detect_brute_force(logs, threshold=3)
     travel_results = detect_impossible_travel(logs, max_speed_kmh=900)
-
-    # ML-based detection (catches subtler patterns, explained via SHAP)
     ml_results = predict_with_explanation(logs)
+
+    # Generate a human-readable summary using the LLM, based on everything detected
+    incident_summary = generate_incident_summary(brute_force_results, travel_results, ml_results)
 
     return jsonify({
         "rule_based": {
@@ -43,6 +40,7 @@ def analyze_logs():
         "ml_based": {
             "attack_predictions": ml_results
         },
+        "incident_summary": incident_summary,
         "summary": {
             "total_rule_based_alerts": len(brute_force_results) + len(travel_results),
             "total_ml_flagged_events": len(ml_results)
