@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pandas as pd
 
 from src.ingestion.read_logs import load_logs
@@ -7,7 +8,9 @@ from src.detections.impossible_travel import detect_impossible_travel
 from src.ml.predict import predict_with_explanation
 from src.llm.summarize import generate_incident_summary
 
+
 app = Flask(__name__)
+CORS(app) 
 
 
 @app.route("/health", methods=["GET"])
@@ -15,6 +18,15 @@ def health_check():
     return jsonify({"status": "ok", "message": "AI SOC Analyst API is running"})
 
 
+@app.route("/sample-logs", methods=["GET"])
+def get_sample_logs():
+    """
+    Returns our synthetic log dataset as JSON, so the frontend can fetch it
+    and use it to trigger analysis - avoids needing a file upload feature yet.
+    """
+    logs = pd.read_csv("data/raw/synthetic_logs.csv")
+    logs["timestamp"] = logs["timestamp"].astype(str)
+    return jsonify(logs.to_dict(orient="records"))
 @app.route("/analyze", methods=["POST"])
 def analyze_logs():
     input_data = request.get_json()
@@ -49,4 +61,4 @@ def analyze_logs():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)
