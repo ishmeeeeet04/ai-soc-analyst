@@ -1,31 +1,149 @@
+<div align="center">
+
 # 🛡️ AI-Powered Autonomous SOC Analyst
 
-An end-to-end AI system that ingests security logs, detects threats using rule-based
-detection and machine learning, explains its decisions with SHAP (Explainable AI),
-maps findings to the MITRE ATT&CK framework, and generates human-readable incident
-reports using a RAG-grounded LLM pipeline.
+**An end-to-end AI security platform that detects, explains, and reports on threats — autonomously.**
+
+[![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-REST%20API-black?logo=flask)](https://flask.palletsprojects.com)
+[![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react)](https://react.dev)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-RandomForest-orange?logo=scikitlearn)](https://scikit-learn.org)
+[![Gemini](https://img.shields.io/badge/Gemini-LLM%20API-4285F4?logo=googlegemini)](https://ai.google.dev)
+[![License](https://img.shields.io/badge/License-MIT-green)]()
+
+[Live Demo]https://ai-soc-analyst-sigma.vercel.app/ · [API Health Check](https://ai-soc-analyst-8dx9.onrender.com/health) · [Report Bug](https://github.com/ishmeeeeet04/ai-soc-analyst/issues)
+
+</div>
+
+---
+
+## 📖 Table of Contents
+
+- [Overview](#-overview)
+- [Live Demo](#-live-demo)
+- [Architecture](#️-architecture)
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [Model Performance](#-model-performance)
+- [Screenshots](#-screenshots)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Roadmap](#-roadmap)
+
+---
+
+## 🎯 Overview
+
+Security Operations Centers are drowning in alerts. Analysts manually triage thousands of login events daily, most of them false positives — while real threats hide in the noise.
+
+**This project builds an autonomous SOC analyst** that combines deterministic security rules with machine learning to detect attacks, explains *why* it flagged something using SHAP, maps every detection to the industry-standard **MITRE ATT&CK** framework, and writes a human-readable incident report using a **RAG-grounded LLM** — the same architecture pattern used by tools like Microsoft Copilot for Security and CrowdStrike Charlotte AI.
 
 ## 🔗 Live Demo
-- **Dashboard:** https://ai-soc-analyst-sigma.vercel.app/
-- **API:** https://ai-soc-analyst-8dx9.onrender.com/health
 
-> Note: hosted on free-tier infrastructure — first request may take 30-60s to wake up.
+| Service | Link |
+|---|---|
+| 🖥️ Dashboard | [your-vercel-url.vercel.app](https://your-vercel-url.vercel.app) |
+| ⚙️ API | [ai-soc-analyst-8dx9.onrender.com](https://ai-soc-analyst-8dx9.onrender.com/health) |
+
+> ⏱️ Hosted on free-tier infrastructure — the first request may take 30–60s while the server wakes up.
 
 ## 🏗️ Architecture
-- **Detection Engine:** Rule-based (Brute Force, Impossible Travel) + Random Forest ML model
-- **Explainability:** SHAP feature attribution for every ML prediction
-- **Threat Intelligence:** MITRE ATT&CK technique mapping (T1110, T1078)
-- **AI Reporting:** RAG-grounded incident summaries via Gemini API + ChromaDB
-- **Backend:** Flask REST API, deployed on Render
-- **Frontend:** React (Vite), deployed on Vercel
+┌─────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│  Raw Logs   │─────▶│  Rule-Based       │─────▶│                  │
+│  (CSV)      │      │  Detection        │      │                  │
+└─────────────┘      │  • Brute Force    │      │   Flask REST     │
+│  • Impossible     │─────▶│   API            │
+┌─────────────┐      │    Travel         │      │                  │
+│  Feature    │─────▶└──────────────────┘      │                  │
+│  Engineering│                                  │                  │
+└─────────────┘      ┌──────────────────┐      │                  │
+│  ML Model         │─────▶│                  │
+│  (Random Forest)  │      └────────┬─────────┘
+│  + SHAP           │               │
+└──────────────────┘               ▼
+┌─────────────────────┐
+┌──────────────────┐    │  RAG-Grounded LLM   │
+│  MITRE ATT&CK    │───▶│  Incident Summary   │
+│  Mapping         │    │  (Gemini + ChromaDB)│
+└──────────────────┘    └──────────┬──────────┘
+▼
+┌─────────────────────┐
+│  React Dashboard    │
+└─────────────────────┘
+## ✨ Key Features
+
+- 🔍 **Hybrid Detection Engine** — rule-based logic for known patterns (brute force, impossible travel) combined with a Random Forest ML model for subtler anomalies
+- 🧠 **Explainable AI** — every ML prediction comes with SHAP-based feature attribution, showing exactly *why* an event was flagged
+- 🌍 **Real Geolocation** — impossible-travel detection uses live IP geolocation and the Haversine formula to calculate real-world required travel speed
+- 🗺️ **MITRE ATT&CK Mapping** — every detection is tagged with its official technique ID (T1110, T1078) and tactic
+- 📝 **AI-Generated Incident Reports** — a RAG pipeline retrieves relevant MITRE guidance and past-incident learnings, grounding the LLM's summary in real reference material instead of hallucinated advice
+- 📊 **Live Dashboard** — React frontend visualizing alerts, confidence scores, and AI-generated reports in real time
 
 ## 🧰 Tech Stack
-Python, Flask, scikit-learn, SHAP, ChromaDB, Google Gemini API, React, Vite, pandas
 
-## 📊 Key Results
-- 89% precision / 89% recall on synthetic attack detection (Random Forest)
-- Real-time IP geolocation-based impossible travel detection
-- Fully explainable predictions via SHAP
+**Backend:** Python · Flask · Gunicorn
+**ML/AI:** scikit-learn · SHAP · pandas · ChromaDB · Google Gemini API
+**Frontend:** React · Vite
+**Infra:** Render (API) · Vercel (Dashboard) · GitHub Actions-ready
 
-## 🚀 Running Locally
-See `/docs` for setup instructions.
+## 📊 Model Performance
+
+Trained on synthetic, labeled log data with injected attack patterns:
+
+| Metric | Score |
+|---|---|
+| Precision (Attack class) | 0.89 |
+| Recall (Attack class) | 0.89 |
+| F1-score | 0.89 |
+| Accuracy | 0.93 |
+
+## 📸 Screenshots
+
+> _Add 2-3 screenshots of your dashboard here — drag images into this README on GitHub and it'll auto-generate the markdown._
+
+## 🚀 Getting Started
+
+```bash
+# Clone
+git clone https://github.com/ishmeeeeet04/ai-soc-analyst.git
+cd ai-soc-analyst
+
+# Backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m src.api.app
+
+# Frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+Full setup guide: [`/docs`](./docs)
+
+## 📁 Project Structure
+ai-soc-analyst/
+├── src/
+│   ├── ingestion/       # Log loading & synthetic data generation
+│   ├── detections/      # Rule-based detection engines
+│   ├── preprocessing/   # Feature engineering
+│   ├── ml/              # Model training, prediction, SHAP explainability
+│   ├── llm/             # RAG pipeline & incident summarization
+│   └── api/             # Flask REST API
+├── frontend/             # React dashboard
+├── models/               # Trained model artifacts
+└── tests/                 # Automated test suite
+
+## 🗺️ Roadmap
+
+- [ ] User authentication
+- [ ] File upload for custom log analysis
+- [ ] Real-time streaming detection
+- [ ] Multi-model comparison (XGBoost, Isolation Forest)
+
+---
+
+<div align="center">
+Built as a Final Year Project · <a href="https://github.com/ishmeeeeet04">@ishmeeeeet04</a>
+</div>
