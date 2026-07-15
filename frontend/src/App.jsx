@@ -5,6 +5,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 
   async function runAnalysis() {
     setLoading(true);
@@ -13,9 +14,11 @@ function App() {
 
     try {
       const logsResponse = await fetch('http://127.0.0.1:5000/sample-logs');
+      const logsResponse = await fetch(`${API_URL}/sample-logs`);
       const logs = await logsResponse.json();
 
       const analyzeResponse = await fetch('http://127.0.0.1:5000/analyze', {
+      const analyzeResponse = await fetch(`${API_URL}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(logs)

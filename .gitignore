@@ -18,6 +18,7 @@ models/*
 
 # VS Code
 .vscode/
+frontend/.env
 
 # OS junk
 .DS_Store
