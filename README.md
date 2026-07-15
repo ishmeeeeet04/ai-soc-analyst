@@ -86,15 +86,18 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 **Frontend:** React · Vite
 **Infra:** Render (API) · Vercel (Dashboard) · GitHub Actions-ready
 
-## 📊 Model Performance
+## Model Performance
 
-Trained on synthetic, labeled log data with injected attack patterns:
+> Note: current metrics are on synthetic labeled data with injected attack
+> patterns, used for rapid iteration during development. Validation against
+> a public real-world dataset is in progress (see Fix 3 below) — numbers
+> below will be updated once that's complete.
 
-| Metric | Score |
+| Metric | Score (synthetic) |
 |---|---|
-| Precision (Attack class) | 0.89 |
-| Recall (Attack class) | 0.89 |
-| F1-score | 0.89 |
+| Precision | 0.89 |
+| Recall | 0.89 |
+| F1 | 0.89 |
 | Accuracy | 0.93 |
 
 ## 📸 Screenshots
