@@ -99,7 +99,18 @@ Trained on synthetic, labeled log data with injected attack patterns:
 
 ## 📸 Screenshots
 
-> _Add 2-3 screenshots of your dashboard here — drag images into this README on GitHub and it'll auto-generate the markdown._
+<div align="center">
+
+### Dashboard Overview
+<img src="docs/screenshots/dashboard-empty.png" width="800" alt="Dashboard empty state" />
+
+### Analysis Results — AI-Generated Incident Report
+<img src="docs/screenshots/results.png" width="800" alt="Dashboard with analysis results" />
+
+### MITRE ATT&CK Mapped Alerts
+<img src="docs/screenshots/alerts.png" width="800" alt="MITRE ATT&CK alerts table" />
+
+</div>
 
 ## 🚀 Getting Started
 
