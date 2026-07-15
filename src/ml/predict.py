@@ -5,55 +5,61 @@ import shap
 from src.preprocessing.feature_engineering import engineer_features
 from src.ml.train_model import FEATURE_COLUMNS
 
-# Load the model and create the SHAP explainer ONCE, at import time -
-# not every time we get a request. Loading a model from disk is relatively slow,
-# so doing it repeatedly per-request would make our API sluggish.
 _model = joblib.load("models/random_forest_v1.pkl")
-_explainer = shap.TreeExplainer(_model)
+_explainer = None  # lazy-loaded, only created when actually needed
+
+
+def _get_explainer():
+    global _explainer
+    if _explainer is None:
+        _explainer = shap.TreeExplainer(_model)
+    return _explainer
 
 
 def predict_with_explanation(logs):
     """
     Runs the trained ML model on log data, returning predictions with SHAP explanations
-    for any events flagged as attacks.
-
-    Input: logs (DataFrame) - raw log data
-    Output: a list of dictionaries, one per event flagged as an attack by the model,
-            including confidence score and top contributing features
+    ONLY for events flagged as attacks - dramatically reduces memory/compute vs
+    explaining every single row.
     """
     featured = engineer_features(logs)
     X = featured[FEATURE_COLUMNS]
 
     predictions = _model.predict(X)
-    probabilities = _model.predict_proba(X)[:, 1]  # probability of "Attack" class
+    probabilities = _model.predict_proba(X)[:, 1]
 
-    shap_values = _explainer.shap_values(X)
+    # Only keep rows the model flagged as attacks - BEFORE running SHAP
+    attack_indices = [i for i in range(len(X)) if predictions[i] == 1]
 
-    # Handle both SHAP output formats, same as in explain_predictions.py
+    if not attack_indices:
+        return []
+
+    # Run SHAP only on this much smaller subset
+    X_attacks_only = X.iloc[attack_indices]
+    explainer = _get_explainer()
+    shap_values = explainer.shap_values(X_attacks_only)
+
     if isinstance(shap_values, list):
         attack_shap_values = shap_values[1]
     else:
         attack_shap_values = shap_values[:, :, 1]
 
     results = []
-    for i in range(len(X)):
-        if predictions[i] == 1:  # only report events the model flagged as attacks
-            # Pair feature names with their SHAP contributions for this specific row
-            contributions = list(zip(FEATURE_COLUMNS, attack_shap_values[i]))
-            contributions.sort(key=lambda x: abs(x[1]), reverse=True)
+    for pos, original_idx in enumerate(attack_indices):
+        contributions = list(zip(FEATURE_COLUMNS, attack_shap_values[pos]))
+        contributions.sort(key=lambda x: abs(x[1]), reverse=True)
 
-            # Keep only the top 3 most influential features - concise, readable explanation
-            top_features = [
-                {"feature": name, "contribution": round(float(value), 4)}
-                for name, value in contributions[:3]
-            ]
+        top_features = [
+            {"feature": name, "contribution": round(float(value), 4)}
+            for name, value in contributions[:3]
+        ]
 
-            results.append({
-                "row_index": int(i),
-                "user": featured.iloc[i]["user"],
-                "timestamp": str(featured.iloc[i]["timestamp"]),
-                "ml_confidence": round(float(probabilities[i]), 4),
-                "top_contributing_features": top_features
-            })
+        results.append({
+            "row_index": int(original_idx),
+            "user": featured.iloc[original_idx]["user"],
+            "timestamp": str(featured.iloc[original_idx]["timestamp"]),
+            "ml_confidence": round(float(probabilities[original_idx]), 4),
+            "top_contributing_features": top_features
+        })
 
     return results
