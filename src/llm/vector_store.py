@@ -3,12 +3,15 @@ from src.llm.knowledge_base import KNOWLEDGE_BASE_DOCUMENTS
 
 # Create a persistent ChromaDB client - "persistent" means data is saved to disk,
 # not lost when the program restarts (as opposed to an in-memory-only database)
-_client = chromadb.PersistentClient(path="data/vector_db")
+_client = None
+_collection = None
 
-# get_or_create_collection: a "collection" in ChromaDB is like a table in a normal database -
-# a named group of related documents. This line creates it if it doesn't exist yet,
-# or reuses it if we've already built it before.
-_collection = _client.get_or_create_collection(name="soc_knowledge_base")
+def _get_collection():
+    global _client, _collection
+    if _collection is None:
+        _client = chromadb.PersistentClient(path="data/vector_db")
+        _collection = _client.get_or_create_collection(name="soc_knowledge_base")
+    return _collection
 
 
 def build_knowledge_base():
@@ -37,10 +40,8 @@ def retrieve_relevant_context(query, n_results=2):
         n_results (int) - how many top matching documents to retrieve
     Output: a list of matching document text strings
     """
-    results = _collection.query(
-        query_texts=[query],
-        n_results=n_results
-    )
+    collection = _get_collection()
+    results = collection.query(query_texts=[query], n_results=n_results)
     return results["documents"][0]
 
 
