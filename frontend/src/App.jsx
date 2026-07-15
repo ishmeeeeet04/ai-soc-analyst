@@ -47,8 +47,18 @@ function App() {
         <h1>🛡️ AI-Powered SOC Analyst</h1>
         <p>Autonomous threat detection, explainability & incident reporting</p>
         <button className="run-button" onClick={runAnalysis} disabled={loading}>
-          {loading ? 'Analyzing...' : 'Run Analysis'}
+          {loading ? (
+            <span className="button-loading">
+              <span className="spinner"></span>
+              Analyzing...
+            </span>
+          ) : 'Run Analysis'}
         </button>
+        {loading && (
+          <p className="loading-hint">
+            Running ML inference, SHAP explanations & generating AI report — this can take up to a minute.
+          </p>
+        )}
         {error && <p className="error-message">{error}</p>}
       </div>
 
