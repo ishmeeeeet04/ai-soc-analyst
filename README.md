@@ -42,7 +42,7 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 
 | Service | Link |
 |---|---|
-| 🖥️ Dashboard | [your-vercel-url.vercel.app](https://ai-soc-analyst-sigma.vercel.app/) |
+| 🖥️ Dashboard | [ai-soc-analyst-sigma.vercel.app](https://ai-soc-analyst-sigma.vercel.app/) |
 | ⚙️ API | [ai-soc-analyst-8dx9.onrender.com](https://ai-soc-analyst-8dx9.onrender.com/health) |
 
 > ⏱️ Hosted on free-tier infrastructure — the first request may take 30–60s while the server wakes up.
