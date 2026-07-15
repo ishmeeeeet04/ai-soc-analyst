@@ -24,7 +24,7 @@ def get_sample_logs():
     Returns our synthetic log dataset as JSON, so the frontend can fetch it
     and use it to trigger analysis - avoids needing a file upload feature yet.
     """
-    logs = pd.read_csv("data/raw/synthetic_logs.csv").head(100)
+    logs = pd.read_csv("data/raw/synthetic_logs.csv").head(40)
     logs["timestamp"] = logs["timestamp"].astype(str)
     return jsonify(logs.to_dict(orient="records"))
 @app.route("/analyze", methods=["POST"])

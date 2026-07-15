@@ -78,7 +78,7 @@ def generate_incident_summary(brute_force_alerts, travel_alerts, ml_predictions)
 
     import time
 
-    max_retries = 3
+    max_retries = 2
     for attempt in range(max_retries):
         try:
             response = _client.models.generate_content(
@@ -88,7 +88,7 @@ def generate_incident_summary(brute_force_alerts, travel_alerts, ml_predictions)
             return response.text
         except Exception as e:
             if attempt < max_retries - 1:
-                time.sleep(3)  # wait 3 seconds before retrying
+                time.sleep(1)  # wait 3 seconds before retrying
                 continue
             else:
                 return f"Incident detected, but AI summary generation is temporarily unavailable (Gemini API overloaded). Raw alerts are shown below. Error: {str(e)}"
