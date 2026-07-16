@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🛡️ AI-Powered Autonomous SOC Analyst
+[▶️ Watch Demo](https://www.loom.com/share/25655d28cf604789a4a54ba1f7bd0978)
 
 **An end-to-end AI security platform that detects, explains, and reports on threats — autonomously.**
 
