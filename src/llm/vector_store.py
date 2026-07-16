@@ -1,57 +1,47 @@
-import chromadb
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from src.llm.knowledge_base import KNOWLEDGE_BASE_DOCUMENTS
 
-# Create a persistent ChromaDB client - "persistent" means data is saved to disk,
-# not lost when the program restarts (as opposed to an in-memory-only database)
-_client = None
-_collection = None
+_vectorizer = None
+_doc_vectors = None
+_documents = None
 
-def _get_collection():
-    global _client, _collection
-    if _collection is None:
-        _client = chromadb.PersistentClient(path="data/vector_db")
-        _collection = _client.get_or_create_collection(name="soc_knowledge_base")
-    return _collection
+
+def _get_index():
+    global _vectorizer, _doc_vectors, _documents
+    if _vectorizer is None:
+        _documents = [doc["content"] for doc in KNOWLEDGE_BASE_DOCUMENTS]
+        _vectorizer = TfidfVectorizer(stop_words="english")
+        _doc_vectors = _vectorizer.fit_transform(_documents)
+    return _vectorizer, _doc_vectors, _documents
 
 
 def build_knowledge_base():
     """
-    Loads our knowledge base documents into ChromaDB, converting each into an embedding
-    automatically (ChromaDB handles the embedding model internally by default).
-    Only needs to be run once (or whenever the knowledge base content changes).
+    Builds a lightweight TF-IDF index over our knowledge base documents.
+    Replaces the previous ChromaDB + downloaded embedding model approach,
+    which was too memory-heavy for free-tier hosting (512MB RAM limit).
     """
-    ids = [doc["id"] for doc in KNOWLEDGE_BASE_DOCUMENTS]
-    documents = [doc["content"] for doc in KNOWLEDGE_BASE_DOCUMENTS]
-
-    _collection.upsert(
-        ids=ids,
-        documents=documents
-    )
-    print(f"Knowledge base built with {len(documents)} documents.")
+    _get_index()
+    print(f"Knowledge base built with {len(KNOWLEDGE_BASE_DOCUMENTS)} documents (TF-IDF index).")
 
 
 def retrieve_relevant_context(query, n_results=2):
     """
-    Given a query string, retrieves the most semantically similar documents
-    from our knowledge base.
-
-    Input:
-        query (string) - the question/context to search for
-        n_results (int) - how many top matching documents to retrieve
-    Output: a list of matching document text strings
+    Given a query string, retrieves the most relevant documents from our
+    knowledge base using TF-IDF + cosine similarity.
     """
-    collection = _get_collection()
-    results = collection.query(query_texts=[query], n_results=n_results)
-    return results["documents"][0]
+    vectorizer, doc_vectors, documents = _get_index()
+    query_vector = vectorizer.transform([query])
+    similarities = cosine_similarity(query_vector, doc_vectors)[0]
+    top_indices = similarities.argsort()[::-1][:n_results]
+    return [documents[i] for i in top_indices]
 
 
 if __name__ == "__main__":
     build_knowledge_base()
-
-    # Quick manual test - see what gets retrieved for a sample query
     test_query = "user had multiple failed login attempts in a short time"
     retrieved = retrieve_relevant_context(test_query)
-
     print(f"\nQuery: {test_query}")
     print("\nRetrieved context:")
     for i, doc in enumerate(retrieved, 1):
