@@ -11,6 +11,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-RandomForest-orange?logo=scikitlearn)](https://scikit-learn.org)
 [![Gemini](https://img.shields.io/badge/Gemini-LLM%20API-4285F4?logo=googlegemini)](https://ai.google.dev)
 [![License](https://img.shields.io/badge/License-MIT-green)]()
+[![Tests](https://github.com/ishmeeeeet04/ai-soc-analyst/actions/workflows/tests.yml/badge.svg)](https://github.com/ishmeeeeet04/ai-soc-analyst/actions)
 
 [Live Demo]https://ai-soc-analyst-sigma.vercel.app/ · [API Health Check](https://ai-soc-analyst-8dx9.onrender.com/health) · [Report Bug](https://github.com/ishmeeeeet04/ai-soc-analyst/issues)
 
