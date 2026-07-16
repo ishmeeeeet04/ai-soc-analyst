@@ -67,3 +67,20 @@ plt.ylabel('Actual')
 plt.title('Confusion Matrix — NSL-KDD Validation')
 plt.savefig('docs/screenshots/confusion_matrix_nslkdd.png')
 print("Confusion matrix saved to docs/screenshots/confusion_matrix_nslkdd.png")
+
+# Step 8: Simple rule-based baseline (no ML) — flag as attack if failed logins > 0 OR wrong_fragment > 0
+def rule_based_baseline(row):
+    if row["num_failed_logins"] > 0 or row["wrong_fragment"] > 0 or row["urgent"] > 0:
+        return 1
+    return 0
+
+y_pred_baseline = test_df.apply(rule_based_baseline, axis=1)
+
+baseline_precision = precision_score(y_test, y_pred_baseline)
+baseline_recall = recall_score(y_test, y_pred_baseline)
+baseline_f1 = f1_score(y_test, y_pred_baseline)
+
+print("\n--- Rule-Based Baseline (No ML) ---")
+print(f"Precision: {baseline_precision:.3f}")
+print(f"Recall: {baseline_recall:.3f}")
+print(f"F1-score: {baseline_f1:.3f}")

@@ -116,6 +116,17 @@ To validate generalization beyond synthetic training data, the same Random Fores
 
 **Note:** Precision remains high on real data (96.6%) — when the model flags an attack, it's rarely wrong. Recall is lower (61.9%), indicating some attack patterns present in real network traffic aren't fully captured by features engineered for the synthetic auth-log use case. This is expected given the domain shift between the two datasets, and highlights a concrete direction for future work: expanding feature engineering to generalize across log formats.
 
+### Why ML over rules alone?
+
+To justify the hybrid approach, a simple rule-based baseline (flagging failed logins, wrong fragments, or urgent packets) was benchmarked against the ML model on the same NSL-KDD test set:
+
+| Approach | Precision | Recall | F1-score |
+|----------|-----------|--------|----------|
+| Rule-based only (baseline) | 0.903 | 0.041 | 0.079 |
+| Hybrid (Rules + ML) | 0.966 | 0.619 | 0.754 |
+
+The rule-based baseline has decent precision but catches almost no real attacks (4.1% recall) — it only flags the most obvious cases. Adding the ML layer improves recall by nearly 15x, catching significantly more real threats while keeping false positives low. This is the core justification for the hybrid architecture: rules alone can't generalize to novel attack patterns, but pure ML without rules loses interpretability and deterministic guarantees for known bad behavior.
+
 ## 📸 Screenshots
 
 <div align="center">
