@@ -100,6 +100,22 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 | F1 | 0.89 |
 | Accuracy | 0.93 |
 
+## 🧪 Validation on Real-World Data
+
+[#-validation-on-real-world-data](#-validation-on-real-world-data)
+
+To validate generalization beyond synthetic training data, the same Random Forest methodology was also trained and evaluated on the [NSL-KDD dataset](https://www.kaggle.com/datasets/hassan06/nslkdd) — a widely-used public network intrusion detection benchmark (125,973 training records).
+
+| Metric | Synthetic Data | NSL-KDD (Real, Binary Classification) |
+|--------|---------------|-----------------------------------------|
+| Precision | 0.89 | 0.966 |
+| Recall | 0.89 | 0.619 |
+| F1-score | 0.89 | 0.754 |
+
+![Confusion Matrix on NSL-KDD](docs/screenshots/confusion_matrix_nslkdd.png)
+
+**Note:** Precision remains high on real data (96.6%) — when the model flags an attack, it's rarely wrong. Recall is lower (61.9%), indicating some attack patterns present in real network traffic aren't fully captured by features engineered for the synthetic auth-log use case. This is expected given the domain shift between the two datasets, and highlights a concrete direction for future work: expanding feature engineering to generalize across log formats.
+
 ## 📸 Screenshots
 
 <div align="center">
