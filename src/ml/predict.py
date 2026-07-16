@@ -6,21 +6,21 @@ from src.preprocessing.feature_engineering import engineer_features
 from src.ml.train_model import FEATURE_COLUMNS
 
 _model = None
-   _explainer = None  # lazy-loaded, only created when actually needed
+_explainer = None  # lazy-loaded, only created when actually needed
 
 
-   def _get_model():
-       global _model
-       if _model is None:
-           _model = joblib.load("models/random_forest_v1.pkl")
-       return _model
+def _get_model():
+    global _model
+    if _model is None:
+        _model = joblib.load("models/random_forest_v1.pkl")
+    return _model
 
 
 def _get_explainer():
-       global _explainer
-       if _explainer is None:
-           _explainer = shap.TreeExplainer(_get_model())
-       return _explainer
+    global _explainer
+    if _explainer is None:
+        _explainer = shap.TreeExplainer(_get_model())
+    return _explainer
 
 
 def predict_with_explanation(logs):
@@ -32,17 +32,15 @@ def predict_with_explanation(logs):
     featured = engineer_features(logs)
     X = featured[FEATURE_COLUMNS]
 
-   model = _get_model()
-   predictions = model.predict(X)
-   probabilities = model.predict_proba(X)[:, 1]
+    model = _get_model()
+    predictions = model.predict(X)
+    probabilities = model.predict_proba(X)[:, 1]
 
-    # Only keep rows the model flagged as attacks - BEFORE running SHAP
     attack_indices = [i for i in range(len(X)) if predictions[i] == 1]
 
     if not attack_indices:
         return []
 
-    # Run SHAP only on this much smaller subset
     X_attacks_only = X.iloc[attack_indices]
     explainer = _get_explainer()
     shap_values = explainer.shap_values(X_attacks_only)
