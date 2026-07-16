@@ -66,7 +66,7 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 ┌─────────────────────┐
 ┌──────────────────┐    │  RAG-Grounded LLM   │
 │  MITRE ATT&CK    │───▶│  Incident Summary   │
-│  Mapping         │    │  (Gemini + ChromaDB)│
+│  Mapping         │    │  (Gemini + TF-IDF)│
 └──────────────────┘    └──────────┬──────────┘
 ▼
 ┌─────────────────────┐
@@ -85,7 +85,7 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 
 [#-rag-knowledge-base](#-rag-knowledge-base)
 
-The RAG pipeline is grounded in a curated knowledge base of 5 documents stored in ChromaDB (persistent, on-disk vector store):
+The RAG pipeline is grounded in a curated knowledge base of 5 documents indexed using TF-IDF vectorization :
 
 | Document | Content |
 |----------|---------|
@@ -98,11 +98,11 @@ The RAG pipeline is grounded in a curated knowledge base of 5 documents stored i
 When an alert is generated, the top-2 most semantically relevant documents are retrieved via ChromaDB's similarity search and injected into the Gemini prompt as grounding context — so the AI-generated incident summary and recommended response are based on real reference material rather than the model's own (potentially hallucinated) judgment.
 
 > **Note:** This knowledge base is intentionally small and curated for this project's scope. In a production SOC, it would continuously grow from real incident postmortems, updated threat intel feeds, and the full MITRE ATT&CK framework.
-
+> **Note:** Originally built with ChromaDB + sentence-transformer embeddings; switched to a lightweight TF-IDF retrieval approach to reduce memory footprint on free-tier hosting (512MB RAM limit) without sacrificing retrieval quality for this small, curated knowledge base.
 ## 🧰 Tech Stack
 
 **Backend:** Python · Flask · Gunicorn
-**ML/AI:** scikit-learn · SHAP · pandas · ChromaDB · Google Gemini API
+**ML/AI:** scikit-learn · SHAP · pandas · scikit-learn (TF-IDF) · Google Gemini API
 **Frontend:** React · Vite
 **Infra:** Render (API) · Vercel (Dashboard) · GitHub Actions-ready
 
@@ -110,7 +110,7 @@ When an alert is generated, the top-2 most semantically relevant documents are r
 
 > Note: current metrics are on synthetic labeled data with injected attack
 > patterns, used for rapid iteration during development. Validation against
-> a public real-world dataset is in progress (see Fix 3 below) — numbers
+> > Note: metrics below are on synthetic labeled data used for rapid iteration during development. See the "Validation on Real-World Data" section below for results on a public benchmark dataset.
 > below will be updated once that's complete.
 
 | Metric | Score (synthetic) |
