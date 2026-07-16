@@ -76,8 +76,26 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 - 🧠 **Explainable AI** — every ML prediction comes with SHAP-based feature attribution, showing exactly *why* an event was flagged
 - 🌍 **Real Geolocation** — impossible-travel detection uses live IP geolocation and the Haversine formula to calculate real-world required travel speed
 - 🗺️ **MITRE ATT&CK Mapping** — every detection is tagged with its official technique ID (T1110, T1078) and tactic
-- 📝 **AI-Generated Incident Reports** — a RAG pipeline retrieves relevant MITRE guidance and past-incident learnings, grounding the LLM's summary in real reference material instead of hallucinated advice
+- 📝  **AI-Generated Incident Reports** — a RAG pipeline retrieves the top-2 most relevant documents from a curated knowledge base (MITRE ATT&CK technique guidance, past-incident post-mortems, and severity classification rules) stored in ChromaDB, then grounds Gemini's incident summary in that retrieved context — preventing hallucinated remediation advice
 - 📊 **Live Dashboard** — React frontend visualizing alerts, confidence scores, and AI-generated reports in real time
+
+## 🧠 RAG Knowledge Base
+
+[#-rag-knowledge-base](#-rag-knowledge-base)
+
+The RAG pipeline is grounded in a curated knowledge base of 5 documents stored in ChromaDB (persistent, on-disk vector store):
+
+| Document | Content |
+|----------|---------|
+| MITRE T1110 | Brute Force technique details and mitigations |
+| MITRE T1078 | Valid Accounts (credential abuse) technique details and mitigations |
+| Past Incident #1 | Brute force case study — lesson: MFA gaps correlate with brute force success |
+| Past Incident #2 | Impossible travel case study — lesson: session termination needed, not just password reset |
+| Severity Guidance | Rules for classifying alerts as Critical/High/Medium/Low |
+
+When an alert is generated, the top-2 most semantically relevant documents are retrieved via ChromaDB's similarity search and injected into the Gemini prompt as grounding context — so the AI-generated incident summary and recommended response are based on real reference material rather than the model's own (potentially hallucinated) judgment.
+
+> **Note:** This knowledge base is intentionally small and curated for this project's scope. In a production SOC, it would continuously grow from real incident postmortems, updated threat intel feeds, and the full MITRE ATT&CK framework.
 
 ## 🧰 Tech Stack
 
