@@ -13,10 +13,13 @@ from src.detections.brute_force import detect_brute_force
 from src.detections.impossible_travel import detect_impossible_travel
 from src.ml.predict import predict_with_explanation
 from src.llm.summarize import generate_incident_summary
+from src.storage.db import init_db, save_incident, get_recent_incidents, get_incident_by_id
 
 
 app = Flask(__name__)
 CORS(app)
+
+init_db()
 
 limiter = Limiter(
     get_remote_address,
@@ -85,7 +88,7 @@ def analyze_logs():
     # Generate a human-readable summary using the LLM, based on everything detected
     incident_summary = generate_incident_summary(brute_force_results, travel_results, ml_results)
 
-    return jsonify({
+    response_data = {
         "rule_based": {
             "brute_force_alerts": brute_force_results,
             "impossible_travel_alerts": travel_results
@@ -98,8 +101,28 @@ def analyze_logs():
             "total_rule_based_alerts": len(brute_force_results) + len(travel_results),
             "total_ml_flagged_events": len(ml_results)
         }
-    })
+    }
+
+    try:
+        save_incident(brute_force_results, travel_results, ml_results, incident_summary, response_data)
+    except Exception as e:
+        logger.warning(f"Failed to save incident to history: {e}")
+
+    return jsonify(response_data)
+
+@app.route("/incidents", methods=["GET"])
+def list_incidents():
+    """Returns the most recent incidents (summary view, not full detail)."""
+    incidents = get_recent_incidents(limit=20)
+    return jsonify(incidents)
 
 
+@app.route("/incidents/<int:incident_id>", methods=["GET"])
+def get_incident(incident_id):
+    """Returns full detail for one specific past incident."""
+    incident = get_incident_by_id(incident_id)
+    if incident is None:
+        return jsonify({"error": "Incident not found"}), 404
+    return jsonify(incident)
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
