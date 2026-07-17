@@ -78,7 +78,7 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 - 🧠 **Explainable AI** — every ML prediction comes with SHAP-based feature attribution, showing exactly *why* an event was flagged
 - 🌍 **Real Geolocation** — impossible-travel detection uses live IP geolocation and the Haversine formula to calculate real-world required travel speed
 - 🗺️ **MITRE ATT&CK Mapping** — every detection is tagged with its official technique ID (T1110, T1078) and tactic
-- 📝  **AI-Generated Incident Reports** — a RAG pipeline retrieves the top-2 most relevant documents from a curated knowledge base (MITRE ATT&CK technique guidance, past-incident post-mortems, and severity classification rules) stored in ChromaDB, then grounds Gemini's incident summary in that retrieved context — preventing hallucinated remediation advice
+- 📝  **AI-Generated Incident Reports** — a RAG pipeline retrieves the top-2 most relevant documents from a curated knowledge base (MITRE ATT&CK technique guidance, past-incident post-mortems, and severity classification rules) indexed via TF-IDF, then grounds Gemini's incident summary in that retrieved context — preventing hallucinated remediation advice
 - 📊 **Live Dashboard** — React frontend visualizing alerts, confidence scores, and AI-generated reports in real time
 
 ## 🧠 RAG Knowledge Base
@@ -95,9 +95,10 @@ The RAG pipeline is grounded in a curated knowledge base of 5 documents indexed 
 | Past Incident #2 | Impossible travel case study — lesson: session termination needed, not just password reset |
 | Severity Guidance | Rules for classifying alerts as Critical/High/Medium/Low |
 
-When an alert is generated, the top-2 most semantically relevant documents are retrieved via ChromaDB's similarity search and injected into the Gemini prompt as grounding context — so the AI-generated incident summary and recommended response are based on real reference material rather than the model's own (potentially hallucinated) judgment.
+When an alert is generated, the top-2 most relevant documents are retrieved via TF-IDF + cosine similarity and injected into the Gemini prompt as grounding context — so the AI-generated incident summary and recommended response are based on real reference material rather than the model's own (potentially hallucinated) judgment.
 
 > **Note:** This knowledge base is intentionally small and curated for this project's scope. In a production SOC, it would continuously grow from real incident postmortems, updated threat intel feeds, and the full MITRE ATT&CK framework.
+> **Engineering note:** This originally used ChromaDB with sentence-transformer embeddings for semantic search. It was switched to TF-IDF after ChromaDB's embedding model download caused out-of-memory crashes on free-tier hosting (512MB RAM). For a knowledge base this small (5 documents), TF-IDF's keyword-based matching performs comparably while using a fraction of the memory — a deliberate infra-driven tradeoff.
 > **Note:** Originally built with ChromaDB + sentence-transformer embeddings; switched to a lightweight TF-IDF retrieval approach to reduce memory footprint on free-tier hosting (512MB RAM limit) without sacrificing retrieval quality for this small, curated knowledge base.
 ## 🧰 Tech Stack
 
@@ -108,8 +109,9 @@ When an alert is generated, the top-2 most semantically relevant documents are r
 
 ## Model Performance
 
-> Note: current metrics are on synthetic labeled data with injected attack
-> patterns, used for rapid iteration during development. Validation against
+> Note: metrics below are on synthetic labeled data used for rapid iteration
+> during development. See "Validation on Real-World Data" below for results
+> on the public NSL-KDD benchmark.
 > > Note: metrics below are on synthetic labeled data used for rapid iteration during development. See the "Validation on Real-World Data" section below for results on a public benchmark dataset.
 > below will be updated once that's complete.
 
