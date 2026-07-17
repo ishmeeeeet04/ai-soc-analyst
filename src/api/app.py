@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from src.ingestion.read_logs import load_logs
 from src.detections.brute_force import detect_brute_force
@@ -29,17 +33,44 @@ def get_sample_logs():
     return jsonify(logs.to_dict(orient="records"))
 @app.route("/analyze", methods=["POST"])
 def analyze_logs():
-    input_data = request.get_json()
+    input_data = request.get_json(silent=True)
 
-    if not input_data:
-        return jsonify({"error": "No log data provided"}), 400
+    # Check 1: valid JSON was sent at all
+    if input_data is None:
+        return jsonify({"error": "Request body must be valid JSON"}), 400
 
-    logs = pd.DataFrame(input_data)
-    logs["timestamp"] = pd.to_datetime(logs["timestamp"])
+    # Check 2: must be a non-empty list of log records
+    if not isinstance(input_data, list) or len(input_data) == 0:
+        return jsonify({"error": "Expected a non-empty list of log records"}), 400
 
-    brute_force_results = detect_brute_force(logs, threshold=3)
-    travel_results = detect_impossible_travel(logs, max_speed_kmh=900)
-    ml_results = predict_with_explanation(logs)
+    # Check 3: cap request size to prevent abuse (adjust limit as needed)
+    MAX_LOGS_PER_REQUEST = 5000
+    if len(input_data) > MAX_LOGS_PER_REQUEST:
+        return jsonify({"error": f"Too many records. Max {MAX_LOGS_PER_REQUEST} per request"}), 400
+
+    # Check 4: required columns must be present in every record
+    REQUIRED_FIELDS = {"user", "timestamp"}
+    for i, record in enumerate(input_data):
+        if not isinstance(record, dict):
+            return jsonify({"error": f"Record at index {i} is not a valid object"}), 400
+        missing = REQUIRED_FIELDS - record.keys()
+        if missing:
+            return jsonify({"error": f"Record at index {i} is missing required fields: {missing}"}), 400
+
+    try:
+        logs = pd.DataFrame(input_data)
+        logs["timestamp"] = pd.to_datetime(logs["timestamp"])
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Failed to parse log data: {e}")
+        return jsonify({"error": "Invalid timestamp format in one or more records"}), 400
+
+    try:
+        brute_force_results = detect_brute_force(logs, threshold=3)
+        travel_results = detect_impossible_travel(logs, max_speed_kmh=900)
+        ml_results = predict_with_explanation(logs)
+    except Exception as e:
+        logger.error(f"Analysis pipeline failed: {e}", exc_info=True)
+        return jsonify({"error": "Internal error while analyzing logs. Please check log format."}), 500
 
     # Generate a human-readable summary using the LLM, based on everything detected
     incident_summary = generate_incident_summary(brute_force_results, travel_results, ml_results)
