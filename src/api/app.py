@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import pandas as pd
 import logging
 
@@ -14,7 +16,14 @@ from src.llm.summarize import generate_incident_summary
 
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+) 
 
 
 @app.route("/health", methods=["GET"])
@@ -32,6 +41,7 @@ def get_sample_logs():
     logs["timestamp"] = logs["timestamp"].astype(str)
     return jsonify(logs.to_dict(orient="records"))
 @app.route("/analyze", methods=["POST"])
+@limiter.limit("10 per minute")
 def analyze_logs():
     input_data = request.get_json(silent=True)
 
