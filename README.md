@@ -13,7 +13,8 @@
 [![License](https://img.shields.io/badge/License-MIT-green)]()
 [![Tests](https://github.com/ishmeeeeet04/ai-soc-analyst/actions/workflows/tests.yml/badge.svg)](https://github.com/ishmeeeeet04/ai-soc-analyst/actions)
 
-[Live Demo]https://ai-soc-analyst-sigma.vercel.app/ · [API Health Check](https://ai-soc-analyst-8dx9.onrender.com/health) · [Report Bug](https://github.com/ishmeeeeet04/ai-soc-analyst/issues)
+[Live Demo](https://ai-soc-analyst-sigma.vercel.app/) · [API Health Check](https://ai-soc-analyst-8dx9.onrender.com/health) · [Report Bug](https://github.com/ishmeeeeet04/ai-soc-analyst/issues)
+ 
 
 </div>
 
@@ -99,21 +100,17 @@ When an alert is generated, the top-2 most relevant documents are retrieved via 
 
 > **Note:** This knowledge base is intentionally small and curated for this project's scope. In a production SOC, it would continuously grow from real incident postmortems, updated threat intel feeds, and the full MITRE ATT&CK framework.
 > **Engineering note:** This originally used ChromaDB with sentence-transformer embeddings for semantic search. It was switched to TF-IDF after ChromaDB's embedding model download caused out-of-memory crashes on free-tier hosting (512MB RAM). For a knowledge base this small (5 documents), TF-IDF's keyword-based matching performs comparably while using a fraction of the memory — a deliberate infra-driven tradeoff.
-> **Note:** Originally built with ChromaDB + sentence-transformer embeddings; switched to a lightweight TF-IDF retrieval approach to reduce memory footprint on free-tier hosting (512MB RAM limit) without sacrificing retrieval quality for this small, curated knowledge base.
+
 ## 🧰 Tech Stack
 
 **Backend:** Python · Flask · Gunicorn
-**ML/AI:** scikit-learn · SHAP · pandas · scikit-learn (TF-IDF) · Google Gemini API
+**ML/AI:** scikit-learn · SHAP · pandas · TF-IDF · Google Gemini API
 **Frontend:** React · Vite
 **Infra:** Render (API) · Vercel (Dashboard) · GitHub Actions-ready
 
-## Model Performance
+## 📊 Model Performance
 
-> Note: metrics below are on synthetic labeled data used for rapid iteration
-> during development. See "Validation on Real-World Data" below for results
-> on the public NSL-KDD benchmark.
-> > Note: metrics below are on synthetic labeled data used for rapid iteration during development. See the "Validation on Real-World Data" section below for results on a public benchmark dataset.
-> below will be updated once that's complete.
+> **Note:** Metrics below are on synthetic labeled data used for rapid iteration during development. See "Validation on Real-World Data" below for results on the public NSL-KDD benchmark.
 
 | Metric | Score (synthetic) |
 |---|---|
