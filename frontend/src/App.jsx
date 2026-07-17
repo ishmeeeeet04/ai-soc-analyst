@@ -5,6 +5,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+  const [view, setView] = useState('analysis'); // 'analysis' or 'history'
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 
   async function runAnalysis() {
@@ -36,6 +39,34 @@ function App() {
     }
   }
 
+  async function loadHistory() {
+    setView('history');
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/incidents`);
+      const data = await res.json();
+      setHistory(data);
+    } catch (err) {
+      setError('Error loading history: ' + err.message);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
+
+  async function viewIncident(id) {
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/incidents/${id}`);
+      const data = await res.json();
+      setResults(data.full_result_json);
+      setView('analysis');
+    } catch (err) {
+      setError('Error loading incident: ' + err.message);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
+
   function confidenceClass(confidence) {
     if (confidence >= 0.7) return 'confidence-high';
     return 'confidence-medium';
@@ -46,23 +77,79 @@ function App() {
       <div className="dashboard-header">
         <h1>🛡️ AI-Powered SOC Analyst</h1>
         <p>Autonomous threat detection, explainability & incident reporting</p>
-        <button className="run-button" onClick={runAnalysis} disabled={loading}>
-          {loading ? (
-            <span className="button-loading">
-              <span className="spinner"></span>
-              Analyzing...
-            </span>
-          ) : 'Run Analysis'}
-        </button>
-        {loading && (
-          <p className="loading-hint">
-            Running ML inference, SHAP explanations & generating AI report — this can take up to a minute.
-          </p>
+
+        <div className="view-toggle">
+          <button
+            className={`toggle-btn ${view === 'analysis' ? 'active' : ''}`}
+            onClick={() => setView('analysis')}
+          >
+            Analysis
+          </button>
+          <button
+            className={`toggle-btn ${view === 'history' ? 'active' : ''}`}
+            onClick={loadHistory}
+          >
+            History
+          </button>
+        </div>
+
+        {view === 'analysis' && (
+          <>
+            <button className="run-button" onClick={runAnalysis} disabled={loading}>
+              {loading ? (
+                <span className="button-loading">
+                  <span className="spinner"></span>
+                  Analyzing...
+                </span>
+              ) : 'Run Analysis'}
+            </button>
+            {loading && (
+              <p className="loading-hint">
+                Running ML inference, SHAP explanations & generating AI report — this can take up to a minute.
+              </p>
+            )}
+          </>
         )}
         {error && <p className="error-message">{error}</p>}
       </div>
 
-      {results && (
+      {view === 'history' && (
+        <div className="section">
+          <h2>🕘 Past Incidents</h2>
+          {historyLoading ? (
+            <p className="empty-state">Loading history...</p>
+          ) : history.length === 0 ? (
+            <p className="empty-state">No past incidents yet. Run an analysis to create one.</p>
+          ) : (
+            <table className="alert-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Rule-Based Alerts</th>
+                  <th>ML-Flagged Events</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((incident) => (
+                  <tr key={incident.id}>
+                    <td>{new Date(incident.created_at).toLocaleString()}</td>
+                    <td>{incident.total_alerts}</td>
+                    <td>{incident.ml_flagged_count}</td>
+                    <td>
+                      <button className="view-link" onClick={() => viewIncident(incident.id)}>
+                        View →
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {view === 'analysis' && results && (
         <>
           <div className="summary-cards">
             <div className="summary-card rule-based">
