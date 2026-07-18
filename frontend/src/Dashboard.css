@@ -325,3 +325,71 @@ body {
     font-size: 14px;
   }
 }
+.detection-legend {
+  display: flex;
+  gap: 24px;
+  background: #0e1119;
+  border: 1px solid #1c2130;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  flex: 1;
+  min-width: 240px;
+  font-size: 12.5px;
+  color: #9aa5c4;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.rule-dot { background: #e6b450; }
+.ml-dot { background: #b98eff; }
+
+.section-hint {
+  color: #6b7386;
+  font-size: 12px;
+  margin-top: -6px;
+  margin-bottom: 4px;
+}
+
+.shap-factors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.shap-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.shap-positive {
+  background: rgba(255, 90, 90, 0.1);
+  color: #ff8a8a;
+  border: 1px solid rgba(255, 90, 90, 0.25);
+}
+
+.shap-negative {
+  background: rgba(107, 195, 145, 0.1);
+  color: #6bc391;
+  border: 1px solid rgba(107, 195, 145, 0.25);
+}

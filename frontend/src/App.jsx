@@ -151,6 +151,17 @@ function App() {
 
       {view === 'analysis' && results && (
         <>
+          <div className="detection-legend">
+            <div className="legend-item">
+              <span className="legend-dot rule-dot"></span>
+              <strong>Rule-Based:</strong> deterministic checks (e.g. failed login count, travel speed) — always triggers on exact thresholds, no ambiguity
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot ml-dot"></span>
+              <strong>ML-Based:</strong> probabilistic model (Random Forest) — flags subtler patterns with a confidence score, explained below via SHAP
+            </div>
+          </div>
+
           <div className="summary-cards">
             <div className="summary-card rule-based">
               <div className="value">{results.summary.total_rule_based_alerts}</div>
@@ -223,13 +234,16 @@ function App() {
 
           <div className="section">
             <h2>🤖 ML Model Predictions</h2>
+            <p className="section-hint">
+              Confidence is the model's predicted probability of an attack. Top factors show which features pushed the prediction toward "attack" (↑) or away from it (↓), per SHAP.
+            </p>
             <table className="alert-table">
               <thead>
                 <tr>
                   <th>User</th>
                   <th>Timestamp</th>
                   <th>Confidence</th>
-                  <th>Top Factor</th>
+                  <th>Top Contributing Factors (SHAP)</th>
                 </tr>
               </thead>
               <tbody>
@@ -242,7 +256,18 @@ function App() {
                         {(pred.ml_confidence * 100).toFixed(0)}%
                       </span>
                     </td>
-                    <td>{pred.top_contributing_features[0].feature}</td>
+                    <td>
+                      <div className="shap-factors">
+                        {pred.top_contributing_features.map((feat, j) => (
+                          <span
+                            key={j}
+                            className={`shap-tag ${feat.contribution >= 0 ? 'shap-positive' : 'shap-negative'}`}
+                          >
+                            {feat.contribution >= 0 ? '↑' : '↓'} {feat.feature}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
