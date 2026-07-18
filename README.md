@@ -157,7 +157,18 @@ The rule-based baseline has decent precision but catches almost no real attacks 
 <img src="docs/screenshots/results.png" width="800" alt="Dashboard with analysis results" />
 
 ### MITRE ATT&CK Mapped Alerts
-<img src="docs/screenshots/alerts.png" width="800" alt="MITRE ATT&CK alerts table" />
+
+<img src="docs/screenshots/alert.png" width="800" alt="MITRE ATT&CK alerts table" />
+
+### Explainable AI — SHAP Factor Direction
+
+<img src="docs/screenshots/shap-explainability.png" width="800" alt="SHAP explainability showing risk-increasing and risk-decreasing factors" />
+
+### Incident History
+
+<img src="docs/screenshots/history-view.png" width="800" alt="Past incidents history view" />
+
+</div>
 
 </div>
 
