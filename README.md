@@ -201,6 +201,7 @@ ai-soc-analyst/
 - [ ] File upload for custom log analysis
 - [ ] Real-time streaming detection
 - [ ] Multi-model comparison (XGBoost, Isolation Forest)
+- [ ] Docker support for consistent local development environment
 
 ---
 
