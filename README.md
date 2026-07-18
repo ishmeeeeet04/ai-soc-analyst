@@ -81,7 +81,7 @@ Security Operations Centers are drowning in alerts. Analysts manually triage tho
 - 🗺️ **MITRE ATT&CK Mapping** — every detection is tagged with its official technique ID (T1110, T1078) and tactic
 - 📝  **AI-Generated Incident Reports** — a RAG pipeline retrieves the top-2 most relevant documents from a curated knowledge base (MITRE ATT&CK technique guidance, past-incident post-mortems, and severity classification rules) indexed via TF-IDF, then grounds Gemini's incident summary in that retrieved context — preventing hallucinated remediation advice
 - 📊 **Live Dashboard** — React frontend visualizing alerts, confidence scores, and AI-generated reports in real time
-
+- 🔔 **Slack Alerting** — High/Critical severity incidents automatically trigger a real-time Slack notification with alert counts and AI-generated summary
 ## 🧠 RAG Knowledge Base
 
 [#-rag-knowledge-base](#-rag-knowledge-base)
